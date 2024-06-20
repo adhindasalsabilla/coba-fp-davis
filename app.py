@@ -6,11 +6,7 @@ import mysql.connector
 from sqlalchemy import create_engine
 import numpy as np
 
-# Create a connection to the database using SQLAlchemy
-db_connection_str = 'mysql+mysqlconnector://root:@localhost:3306/dump-dw_aw-202403050806'
-engine = create_engine(f'{db_connection_str}')
-
-# Ensure we get database configuration from secrets
+# Ensure we get database configuration from secrets (if using streamlit secrets)
 # db_config = st.secrets["mysql"]
 # user = db_config["user"]
 # password = db_config["password"]
@@ -18,18 +14,25 @@ engine = create_engine(f'{db_connection_str}')
 # port = db_config["port"]
 # database = db_config["database"]
 
+# Using provided database connection details
+user = "davis2024irwan"
+password = "wh451n9m@ch1n3"
+host = "kubela.id"
+port = 3306
+database = "aw"
+
 # Membuat koneksi
-# dataBase = mysql.connector.connect(
-#     host=host,
-#     user=user,
-#     passwd=password,
-#     port=port,
-#     database=database
-# )
+dataBase = mysql.connector.connect(
+    host=host,
+    user=user,
+    passwd=password,
+    port=port,
+    database=database
+)
 
 # For debugging purposes (optional, remove in production)
-# st.write("DB username:", user)
-# st.write("DB password:", password)
+st.write("DB username:", user)
+st.write("DB password:", password)
 
 # Function to plot Standard Cost per Product per Month
 def plot_standard_cost_per_product_per_month(engine):
@@ -142,7 +145,9 @@ def plot_product_category_name_count(engine):
 
     st.pyplot(plt)
 
-
+# Create a connection to the database using SQLAlchemy
+db_connection_str = f'mysql+mysqlconnector://{user}:{password}@{host}:{port}/{database}'
+engine = create_engine(db_connection_str)
 
 # Streamlit app
 st.title('Data Visualization Dashboard')

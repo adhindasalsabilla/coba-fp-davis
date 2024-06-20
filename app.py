@@ -10,7 +10,7 @@ import numpy as np
 # Using provided database connection details
 user = "davis2024irwan"
 password = "wh451n9m@ch1n3"
-host = "kubela.id"
+host = "kubela.id"  # Ensure this is correct
 port = 3306
 database = "aw"
 

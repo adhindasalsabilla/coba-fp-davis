@@ -54,6 +54,7 @@ def plot_standard_cost_per_product_per_month(conn):
         plt.grid(True)
         plt.xticks(rotation=45)
         st.pyplot(plt)
+        st.write("Grafik ini menjelaskan perbandingan biaya standar untuk setiap produk per bulan. Dengan melihat grafik ini, kita dapat memahami bagaimana biaya standar dari berbagai produk berubah setiap bulan sepanjang tahun.")
     except Error as e:
         st.error(f"Error: {e}")
 
@@ -79,6 +80,7 @@ def plot_distribution_of_department_by_geography(conn):
         plt.grid(True)
         plt.legend(title='Geography')
         st.pyplot(plt)
+        st.write("Grafik ini menjelaskan distribusi jumlah karyawan di berbagai departemen berdasarkan lokasi geografis. Dengan menganalisis grafik ini, kita dapat memahami bagaimana karyawan tersebar di berbagai departemen dan negara.")
     except Error as e:
         st.error(f"Error: {e}")
 
@@ -108,6 +110,7 @@ def plot_customer_education_composition_by_country(conn):
         plt.title('Customer Education Composition by Country')
 
         st.pyplot(fig)
+        st.write("Grafik ini menjelaskan komposisi pendidikan pelanggan berdasarkan negara. Dengan melihat grafik ini, kita dapat memahami tingkat pendidikan pelanggan di berbagai negara.")
     except Error as e:
         st.error(f"Error: {e}")
 
@@ -142,6 +145,7 @@ def plot_product_category_name_count(conn):
         plt.tight_layout()
 
         st.pyplot(plt)
+        st.write("Grafik ini menjelaskan jumlah kategori produk yang ada. Ukuran gelembung menunjukkan jumlah produk dalam setiap kategori, dan warnanya mewakili mata uang yang berbeda.")
     except Error as e:
         st.error(f"Error: {e}")
 

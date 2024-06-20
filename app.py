@@ -6,40 +6,33 @@ import mysql.connector
 from mysql.connector import Error
 import numpy as np
 
-# Ensure we get database configuration from secrets
-db_config = st.secrets["mysql"]
-user = db_config["user"]
-password = db_config["password"]
-host = db_config["host"]
-port = db_config["port"]
-database = db_config["database"]
-
-# Membuat koneksi
-try:
-    dataBase = mysql.connector.connect(
-        host=host,
-        user=user,
-        passwd=password,
-        port=port,
-        database=database
-    )
-    connection_successful = True
-    st.write("Connected to the database")
-except Error as e:
-    st.error(f"Failed to connect to the database: {e}")
-    connection_successful = False
+# Define the function to create a database connection
+def create_connection():
+    try:
+        conn = mysql.connector.connect(
+            host="kubela.id",
+            user="davis2024irwan",
+            password="wh451n9m@ch1n3", 
+            port="3306",
+            database="aw"
+        )
+        st.write("Connected to the database")
+        return conn
+    except mysql.connector.Error as err:
+        st.error(f"Error: {err}")
+        return None
 
 # Function to plot Standard Cost per Product per Month
-def plot_standard_cost_per_product_per_month(dataBase):
+def plot_standard_cost_per_product_per_month(conn):
     try:
         dimproduct_query = 'SELECT ProductKey, EnglishProductName, StandardCost FROM dimproduct'
-        dimproduct = pd.read_sql(dimproduct_query, con=dataBase)
+        dimproduct = pd.read_sql(dimproduct_query, con=conn)
 
         dimtime_query = 'SELECT TimeKey, EnglishMonthName FROM dimtime'
-        dimtime = pd.read_sql(dimtime_query, con=dataBase)
+        dimtime = pd.read_sql(dimtime_query, con=conn)
 
         factinternetsales_query = 'SELECT ProductKey, OrderDateKey, SalesAmount FROM factinternetsales'
-        factinternetsales = pd.read_sql(factinternetsales_query, con=dataBase)
+        factinternetsales = pd.read_sql(factinternetsales_query, con=conn)
 
         merged_data_time = pd.merge(factinternetsales, dimtime, left_on='OrderDateKey', right_on='TimeKey')
         merged_data = pd.merge(merged_data_time, dimproduct, on='ProductKey')
@@ -65,13 +58,13 @@ def plot_standard_cost_per_product_per_month(dataBase):
         st.error(f"Error: {e}")
 
 # Function to plot Distribution of Department by Geography
-def plot_distribution_of_department_by_geography(dataBase):
+def plot_distribution_of_department_by_geography(conn):
     try:
         dimemployee_query = 'SELECT EmployeeKey, DepartmentName, Title FROM dimemployee'
-        dimemployee = pd.read_sql(dimemployee_query, con=dataBase)
+        dimemployee = pd.read_sql(dimemployee_query, con=conn)
 
         dimgeography_query = 'SELECT GeographyKey, EnglishCountryRegionName FROM dimgeography'
-        dimgeography = pd.read_sql(dimgeography_query, con=dataBase)
+        dimgeography = pd.read_sql(dimgeography_query, con=conn)
 
         np.random.seed(42)
         random_geographies = np.random.choice(dimgeography['EnglishCountryRegionName'], len(dimemployee))
@@ -90,13 +83,13 @@ def plot_distribution_of_department_by_geography(dataBase):
         st.error(f"Error: {e}")
 
 # Function to plot Customer Education Composition by Country
-def plot_customer_education_composition_by_country(dataBase):
+def plot_customer_education_composition_by_country(conn):
     try:
         dimcustomer_query = 'SELECT CustomerKey, EnglishEducation, GeographyKey FROM dimcustomer'
-        dimcustomer = pd.read_sql(dimcustomer_query, con=dataBase)
+        dimcustomer = pd.read_sql(dimcustomer_query, con=conn)
 
         dimgeography_query = 'SELECT GeographyKey, EnglishCountryRegionName FROM dimgeography'
-        dimgeography = pd.read_sql(dimgeography_query, con=dataBase)
+        dimgeography = pd.read_sql(dimgeography_query, con=conn)
 
         merged_data = pd.merge(dimcustomer, dimgeography, on='GeographyKey')
         composition_data = merged_data.groupby(['EnglishCountryRegionName', 'EnglishEducation']).size().unstack()
@@ -119,13 +112,13 @@ def plot_customer_education_composition_by_country(dataBase):
         st.error(f"Error: {e}")
 
 # Function to plot Product Category Name Count
-def plot_product_category_name_count(dataBase):
+def plot_product_category_name_count(conn):
     try:
         dimproductcategory_query = 'SELECT ProductCategoryKey, EnglishProductCategoryName FROM dimproductcategory'
-        dimproductcategory = pd.read_sql(dimproductcategory_query, con=dataBase)
+        dimproductcategory = pd.read_sql(dimproductcategory_query, con=conn)
 
         dimcurrency_query = 'SELECT CurrencyKey, CurrencyName FROM dimcurrency'
-        dimcurrency = pd.read_sql(dimcurrency_query, con=dataBase)
+        dimcurrency = pd.read_sql(dimcurrency_query, con=conn)
 
         np.random.seed(42)
         random_currency = np.random.choice(dimcurrency['CurrencyName'], len(dimproductcategory))
@@ -153,19 +146,22 @@ def plot_product_category_name_count(dataBase):
         st.error(f"Error: {e}")
 
 # Streamlit app
-if connection_successful:
+conn = create_connection()
+if conn:
     st.title('Data Visualization Dashboard')
 
     st.header('Standard Cost per Product per Month')
-    plot_standard_cost_per_product_per_month(dataBase)
+    plot_standard_cost_per_product_per_month(conn)
 
     st.header('Distribution of Department Name by Geography')
-    plot_distribution_of_department_by_geography(dataBase)
+    plot_distribution_of_department_by_geography(conn)
 
     st.header('Customer Education Composition by Country')
-    plot_customer_education_composition_by_country(dataBase)
+    plot_customer_education_composition_by_country(conn)
 
     st.header('Product Category Name Count')
-    plot_product_category_name_count(dataBase)
+    plot_product_category_name_count(conn)
+
+    conn.close()
 else:
     st.error("Failed to connect to the database. Please check your connection settings.")

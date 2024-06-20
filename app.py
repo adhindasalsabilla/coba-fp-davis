@@ -3,37 +3,43 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import mysql.connector
-from sqlalchemy import create_engine
-from sqlalchemy.exc import SQLAlchemyError
+from mysql.connector import Error
 import numpy as np
 
-# Using provided database connection details
-user = "davis2024irwan"
-password = "wh451n9m@ch1n3"
-host = "kubela.id"  # Ensure this is correct
-port = 3306
-database = "aw"
+# Ensure we get database configuration from secrets
+db_config = st.secrets["mysql"]
+user = db_config["user"]
+password = db_config["password"]
+host = db_config["host"]
+port = db_config["port"]
+database = db_config["database"]
 
-# Create a connection to the database using SQLAlchemy
+# Membuat koneksi
 try:
-    db_connection_str = f'mysql+mysqlconnector://{user}:{password}@{host}:{port}/{database}'
-    engine = create_engine(db_connection_str)
+    dataBase = mysql.connector.connect(
+        host=host,
+        user=user,
+        passwd=password,
+        port=port,
+        database=database
+    )
     connection_successful = True
-except SQLAlchemyError as e:
+    st.write("Connected to the database")
+except Error as e:
     st.error(f"Failed to connect to the database: {e}")
     connection_successful = False
 
 # Function to plot Standard Cost per Product per Month
-def plot_standard_cost_per_product_per_month(engine):
+def plot_standard_cost_per_product_per_month(dataBase):
     try:
         dimproduct_query = 'SELECT ProductKey, EnglishProductName, StandardCost FROM dimproduct'
-        dimproduct = pd.read_sql(dimproduct_query, engine)
+        dimproduct = pd.read_sql(dimproduct_query, con=dataBase)
 
         dimtime_query = 'SELECT TimeKey, EnglishMonthName FROM dimtime'
-        dimtime = pd.read_sql(dimtime_query, engine)
+        dimtime = pd.read_sql(dimtime_query, con=dataBase)
 
         factinternetsales_query = 'SELECT ProductKey, OrderDateKey, SalesAmount FROM factinternetsales'
-        factinternetsales = pd.read_sql(factinternetsales_query, engine)
+        factinternetsales = pd.read_sql(factinternetsales_query, con=dataBase)
 
         merged_data_time = pd.merge(factinternetsales, dimtime, left_on='OrderDateKey', right_on='TimeKey')
         merged_data = pd.merge(merged_data_time, dimproduct, on='ProductKey')
@@ -55,17 +61,17 @@ def plot_standard_cost_per_product_per_month(engine):
         plt.grid(True)
         plt.xticks(rotation=45)
         st.pyplot(plt)
-    except SQLAlchemyError as e:
+    except Error as e:
         st.error(f"Error: {e}")
 
 # Function to plot Distribution of Department by Geography
-def plot_distribution_of_department_by_geography(engine):
+def plot_distribution_of_department_by_geography(dataBase):
     try:
         dimemployee_query = 'SELECT EmployeeKey, DepartmentName, Title FROM dimemployee'
-        dimemployee = pd.read_sql(dimemployee_query, engine)
+        dimemployee = pd.read_sql(dimemployee_query, con=dataBase)
 
         dimgeography_query = 'SELECT GeographyKey, EnglishCountryRegionName FROM dimgeography'
-        dimgeography = pd.read_sql(dimgeography_query, engine)
+        dimgeography = pd.read_sql(dimgeography_query, con=dataBase)
 
         np.random.seed(42)
         random_geographies = np.random.choice(dimgeography['EnglishCountryRegionName'], len(dimemployee))
@@ -80,17 +86,17 @@ def plot_distribution_of_department_by_geography(engine):
         plt.grid(True)
         plt.legend(title='Geography')
         st.pyplot(plt)
-    except SQLAlchemyError as e:
+    except Error as e:
         st.error(f"Error: {e}")
 
 # Function to plot Customer Education Composition by Country
-def plot_customer_education_composition_by_country(engine):
+def plot_customer_education_composition_by_country(dataBase):
     try:
         dimcustomer_query = 'SELECT CustomerKey, EnglishEducation, GeographyKey FROM dimcustomer'
-        dimcustomer = pd.read_sql(dimcustomer_query, engine)
+        dimcustomer = pd.read_sql(dimcustomer_query, con=dataBase)
 
         dimgeography_query = 'SELECT GeographyKey, EnglishCountryRegionName FROM dimgeography'
-        dimgeography = pd.read_sql(dimgeography_query, engine)
+        dimgeography = pd.read_sql(dimgeography_query, con=dataBase)
 
         merged_data = pd.merge(dimcustomer, dimgeography, on='GeographyKey')
         composition_data = merged_data.groupby(['EnglishCountryRegionName', 'EnglishEducation']).size().unstack()
@@ -109,17 +115,17 @@ def plot_customer_education_composition_by_country(engine):
         plt.title('Customer Education Composition by Country')
 
         st.pyplot(fig)
-    except SQLAlchemyError as e:
+    except Error as e:
         st.error(f"Error: {e}")
 
 # Function to plot Product Category Name Count
-def plot_product_category_name_count(engine):
+def plot_product_category_name_count(dataBase):
     try:
         dimproductcategory_query = 'SELECT ProductCategoryKey, EnglishProductCategoryName FROM dimproductcategory'
-        dimproductcategory = pd.read_sql(dimproductcategory_query, engine)
+        dimproductcategory = pd.read_sql(dimproductcategory_query, con=dataBase)
 
         dimcurrency_query = 'SELECT CurrencyKey, CurrencyName FROM dimcurrency'
-        dimcurrency = pd.read_sql(dimcurrency_query, engine)
+        dimcurrency = pd.read_sql(dimcurrency_query, con=dataBase)
 
         np.random.seed(42)
         random_currency = np.random.choice(dimcurrency['CurrencyName'], len(dimproductcategory))
@@ -143,7 +149,7 @@ def plot_product_category_name_count(engine):
         plt.tight_layout()
 
         st.pyplot(plt)
-    except SQLAlchemyError as e:
+    except Error as e:
         st.error(f"Error: {e}")
 
 # Streamlit app
@@ -151,15 +157,15 @@ if connection_successful:
     st.title('Data Visualization Dashboard')
 
     st.header('Standard Cost per Product per Month')
-    plot_standard_cost_per_product_per_month(engine)
+    plot_standard_cost_per_product_per_month(dataBase)
 
     st.header('Distribution of Department Name by Geography')
-    plot_distribution_of_department_by_geography(engine)
+    plot_distribution_of_department_by_geography(dataBase)
 
     st.header('Customer Education Composition by Country')
-    plot_customer_education_composition_by_country(engine)
+    plot_customer_education_composition_by_country(dataBase)
 
     st.header('Product Category Name Count')
-    plot_product_category_name_count(engine)
+    plot_product_category_name_count(dataBase)
 else:
     st.error("Failed to connect to the database. Please check your connection settings.")

@@ -14,6 +14,15 @@ host = "kubela.id"
 port = 3306
 database = "aw"
 
+# Create a connection to the database using SQLAlchemy
+try:
+    db_connection_str = f'mysql+mysqlconnector://{user}:{password}@{host}:{port}/{database}'
+    engine = create_engine(db_connection_str)
+    connection_successful = True
+except SQLAlchemyError as e:
+    st.error(f"Failed to connect to the database: {e}")
+    connection_successful = False
+
 # Function to plot Standard Cost per Product per Month
 def plot_standard_cost_per_product_per_month(engine):
     try:
@@ -138,16 +147,19 @@ def plot_product_category_name_count(engine):
         st.error(f"Error: {e}")
 
 # Streamlit app
-st.title('Data Visualization Dashboard')
+if connection_successful:
+    st.title('Data Visualization Dashboard')
 
-st.header('Standard Cost per Product per Month')
-plot_standard_cost_per_product_per_month(engine)
+    st.header('Standard Cost per Product per Month')
+    plot_standard_cost_per_product_per_month(engine)
 
-st.header('Distribution of Department Name by Geography')
-plot_distribution_of_department_by_geography(engine)
+    st.header('Distribution of Department Name by Geography')
+    plot_distribution_of_department_by_geography(engine)
 
-st.header('Customer Education Composition by Country')
-plot_customer_education_composition_by_country(engine)
+    st.header('Customer Education Composition by Country')
+    plot_customer_education_composition_by_country(engine)
 
-st.header('Product Category Name Count')
-plot_product_category_name_count(engine)
+    st.header('Product Category Name Count')
+    plot_product_category_name_count(engine)
+else:
+    st.error("Failed to connect to the database. Please check your connection settings.")

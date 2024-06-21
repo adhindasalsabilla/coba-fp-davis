@@ -54,7 +54,7 @@ def plot_standard_cost_per_product_per_month(conn):
         plt.grid(True)
         plt.xticks(rotation=45)
         st.pyplot(plt)
-        st.write("Grafik ini menjelaskan perbandingan biaya standar untuk setiap produk per bulan. Dengan melihat grafik ini, kita dapat memahami bagaimana biaya standar dari berbagai produk berubah setiap bulan sepanjang tahun.")
+        st.write("Grafik diatas menjelaskan perbandingan biaya standar untuk setiap produk per bulan. Dengan melihat grafik ini, kita dapat memahami bagaimana biaya standar dari berbagai produk berubah setiap bulan sepanjang tahun. Produk dengan standard cost tertinggi adalah Sport-100 Helmet dengan varian Red (sekitar 2500) dan produk dengan standard cost terendah adalah Womens Mountains Short ukran S (0).")
     except Error as e:
         st.error(f"Error: {e}")
 
@@ -80,7 +80,7 @@ def plot_distribution_of_department_by_geography(conn):
         plt.grid(True)
         plt.legend(title='Geography')
         st.pyplot(plt)
-        st.write("Grafik ini menjelaskan distribusi jumlah karyawan di berbagai departemen berdasarkan lokasi geografis. Dengan menganalisis grafik ini, kita dapat memahami bagaimana karyawan tersebar di berbagai departemen dan negara.")
+        st.write("Grafik diatas menjelaskan distribusi jumlah karyawan di berbagai departemen berdasarkan lokasi geografis. Dapat dilihat pada grafik bahwa negara USA menjadi negara asal paling banyak untuk departemen Production (sekitar 110 orang), sedangkan Australia menjadi negara dengan asal karyawan terendah untuk divisi Tool Design (sekitar 2-3 orang).")
     except Error as e:
         st.error(f"Error: {e}")
 
@@ -110,7 +110,7 @@ def plot_customer_education_composition_by_country(conn):
         plt.title('Customer Education Composition by Country')
 
         st.pyplot(fig)
-        st.write("Grafik ini menjelaskan komposisi pendidikan pelanggan berdasarkan negara. Dengan melihat grafik ini, kita dapat memahami tingkat pendidikan pelanggan di berbagai negara.")
+        st.write("Grafik diatas menjelaskan komposisi pendidikan pelanggan berdasarkan negara. Education terbanyak dari customer adalah Bachelors sebesar 29%, diikuti dengan Partial College sebesar 27.4%, lalu High School sebesar 17.8%, kemudian Graduate Degree sebesar 17.3%, terakhir Partial High School sebesar 8.6%")
     except Error as e:
         st.error(f"Error: {e}")
 
@@ -145,7 +145,7 @@ def plot_product_category_name_count(conn):
         plt.tight_layout()
 
         st.pyplot(plt)
-        st.write("Grafik ini menjelaskan jumlah kategori produk yang ada. Ukuran gelembung menunjukkan jumlah produk dalam setiap kategori, dan warnanya mewakili mata uang yang berbeda.")
+        st.write("Grafik diatas menjelaskan jumlah kategori produk yang ada. Ukuran gelembung menunjukkan jumlah produk dalam setiap kategori, dan warnanya mewakili mata uang yang berbeda.")
     except Error as e:
         st.error(f"Error: {e}")
 
